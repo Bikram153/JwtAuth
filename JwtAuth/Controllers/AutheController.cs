@@ -16,7 +16,7 @@ namespace JwtAuth.Controllers
             var user = await authService.RegisterAsync(request);
             if (user is null)
             {
-                return BadRequest("Username alraedy exixts!!");
+                return BadRequest("Username alraedy exists!!");
             }
             return Ok(user);
         }
@@ -24,13 +24,13 @@ namespace JwtAuth.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<string>> Login(UserDto request)
         {
-            var token = await authService.LoginAsync(request);
+            var result = await authService.LoginAsync(request);
 
-            if (token is null)
+            if (result is null)
             {
                 return BadRequest("Invalid username or password.");
             }
-            return Ok(token);
+            return Ok(result);
         }
 
         [Authorize]
@@ -45,6 +45,18 @@ namespace JwtAuth.Controllers
         public IActionResult AdminOnlyEndpoint()
         {
             return Ok("You are an admin");
+        }
+
+        [HttpPost("refresh-token")]
+        public async Task<ActionResult<TokenResponseDto>> RefreshToken(RefereshTokenRequestDto refereshTokenRequestDto)
+        {
+            var result = await authService.RefreshTokensAsync(refereshTokenRequestDto);
+            if (result is null || result.AccessToken is null || result.RefershToken is null)
+            {
+                return Unauthorized("Invalid refresh token.");
+            }
+
+            return Ok(result);
         }
     }
 }
