@@ -46,7 +46,7 @@ namespace JwtAuth.Services
             return user;
         }
 
-        private async Task<User?> ValidateRefershTokenAsync(Guid Id, string refershToken)
+        private async Task<User?> ValidateRefreshTokenAsync(Guid Id, string refershToken)
         {
             var user = await context.Users.FindAsync(Id);
             if (user is null || user.RefreshToken != refershToken || user.RefreshTokenExpiry <= DateTime.UtcNow)
@@ -56,9 +56,9 @@ namespace JwtAuth.Services
             return user;
         }
 
-        public async Task<TokenResponseDto?> RefreshTokensAsync(RefereshTokenRequestDto refereshTokenRequestDto)
+        public async Task<TokenResponseDto?> RefreshTokensAsync(RefreshTokenRequestDto refreshTokenRequestDto)
         {
-            var user = await ValidateRefershTokenAsync(refereshTokenRequestDto.UserId, refereshTokenRequestDto.RefreshToken);
+            var user = await ValidateRefreshTokenAsync(refreshTokenRequestDto.UserId, refreshTokenRequestDto.RefreshToken);
 
             if (user is null)
             {
@@ -75,7 +75,7 @@ namespace JwtAuth.Services
             return Convert.ToBase64String(randomNumber);
         }
 
-        private async Task<string> GenerateAndSaveRefershTokenAsync(User user)
+        private async Task<string> GenerateAndSaveRefreshTokenAsync(User user)
         {
             var refershToken = GenerateRefreshToken();
             user.RefreshToken = refershToken;
@@ -89,7 +89,7 @@ namespace JwtAuth.Services
             return new TokenResponseDto()
             {
                 AccessToken = CreateToken(user),
-                RefershToken = await GenerateAndSaveRefershTokenAsync(user)
+                RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
             };
 
         }

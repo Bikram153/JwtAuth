@@ -48,10 +48,10 @@ namespace JwtAuth.Controllers
         }
 
         [HttpPost("refresh-token")]
-        public async Task<ActionResult<TokenResponseDto>> RefreshToken(RefereshTokenRequestDto refereshTokenRequestDto)
+        public async Task<ActionResult<TokenResponseDto>> RefreshToken(RefreshTokenRequestDto refereshTokenRequestDto)
         {
             var result = await authService.RefreshTokensAsync(refereshTokenRequestDto);
-            if (result is null || result.AccessToken is null || result.RefershToken is null)
+            if (result is null || result.AccessToken is null || result.RefreshToken is null)
             {
                 return Unauthorized("Invalid refresh token.");
             }
