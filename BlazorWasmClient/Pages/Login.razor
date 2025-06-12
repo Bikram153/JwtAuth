@@ -1,0 +1,25 @@
+﻿@page "/login"
+@using BlazorWasmClient.Services
+@using BlazorWasmClient.Models
+<h3>Login</h3>
+@inject AuthService AuthService
+@inject NavigationManager Nav
+<h3>Login</h3>
+<EditForm Model="_user" OnValidSubmit="HandleLogin">
+    <InputText @bind-Value="_user.Username" placeholder="Username" />
+    <InputText @bind-Value="_user.Password" type="password" placeholder="Password" />
+    <button type="submit">Login</button>
+</EditForm>
+
+@code {
+    private UserDto _user = new();
+
+    private async Task HandleLogin()
+    {
+        var success = await AuthService.Login(_user);
+        if(success)
+        {
+            Nav.NavigateTo("/dashboard");
+        }
+    }
+}

@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Json;
 using Blazored.LocalStorage;
-using JwtAuth.Models;
+using BlazorWasmClient.Models;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace BlazorWasmClient.Services
@@ -20,13 +20,13 @@ namespace BlazorWasmClient.Services
 
         public async Task<bool> Register(UserDto user)
         {
-            var result = await _http.PostAsJsonAsync("api/Authe/register", user);
+            var result = await _http.PostAsJsonAsync("https://localhost:7250/api/Authe/register", user);
             return result.IsSuccessStatusCode;
         }
 
         public async Task<bool> Login(UserDto user)
         {
-            var response = await _http.PostAsJsonAsync("api/Authe/login", user);
+            var response = await _http.PostAsJsonAsync("https://localhost:7250/api/Authe/login", user);
             if (!response.IsSuccessStatusCode)
             {
                 return false;

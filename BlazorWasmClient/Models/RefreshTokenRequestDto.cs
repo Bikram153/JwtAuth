@@ -1,4 +1,4 @@
-﻿namespace JwtAuth.Models
+﻿namespace BlazorWasmClient.Models
 {
     public class RefreshTokenRequestDto
     {

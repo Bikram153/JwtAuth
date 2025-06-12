@@ -1,4 +1,6 @@
-﻿using Blazored.LocalStorage;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace BlazorWasmClient
@@ -11,9 +13,22 @@ namespace BlazorWasmClient
         {
             _localStorage = localStorage;
         }
-        public override Task<AuthenticationState> GetAuthenticationStateAsync()
+        public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            throw new NotImplementedException();
+            var token = await _localStorage.GetItemAsync<string>("accessToken");
+            var identity = new ClaimsIdentity();
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                var handler = new JwtSecurityTokenHandler();
+                var jwt = handler.ReadJwtToken(token);
+
+                var claims = jwt.Claims;
+                identity = new ClaimsIdentity(claims, "jwt");
+            }
+
+            var user = new ClaimsPrincipal(identity);
+            return new AuthenticationState(user);
         }
 
         public void NotifyAuthenticationStateChanged() =>
