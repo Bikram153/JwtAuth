@@ -1,2 +1,5 @@
 @page "/user"
-<h3>User Page</h3>
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "User")]
+
+<h3>User Panel</h3>

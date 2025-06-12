@@ -1,30 +1,34 @@
 ﻿@page "/register"
 @using BlazorWasmClient.Models
-@using BlazorWasmClient.Services
-@inject AuthService Authservice
+@inject HttpClient Http
 @inject NavigationManager Nav
 
 <h3>Register</h3>
 
-<EditForm Model="_user" OnValidSubmit="HandleRegister">
-	<InputText @bind-Value="_user.Username" placeholder="Username" />
-	<InputText @bind-Value="_user.Password" type="password" placeholder="Password" />
-	<select @bind="_user.Role">
-		<option value="User">User</option>
-		<option value="Admin">Admin</option>
-	</select>
-	<button type="submit">Register</button>
+<EditForm Model="user" OnValidSubmit="HandleRegister">
+    <InputText @bind-Value="user.Username" class="form-control" placeholder="Username" />
+    <InputText @bind-Value="user.Password" class="form-control" type="password" placeholder="Password" />
+    <InputSelect @bind-Value="user.Role" class="form-control">
+        <option value="">Select Role</option>
+        <option value="User">User</option>
+        <option value="Admin">Admin</option>
+    </InputSelect>
+    <button class="btn btn-primary mt-2" type="submit">Register</button>
 </EditForm>
-	
-@code {
-	private UserDto _user = new();
 
-	private async Task HandleRegister()
-	{
-		var success = await Authservice.Register(_user);
-		if(success)
-		{
-			Nav.NavigateTo("/login");
-		}
-	}
+@code {
+    private UserDto user = new();
+
+    private async Task HandleRegister()
+    {
+        var result = await Http.PostAsJsonAsync("https://localhost:7250/api/Authe/register", user);
+        if (result.IsSuccessStatusCode)
+        {
+            Nav.NavigateTo("login");
+        }
+        else
+        {
+            Console.WriteLine("Registration failed");
+        }
+    }
 }

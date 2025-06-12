@@ -13,25 +13,43 @@ namespace BlazorWasmClient
         {
             _localStorage = localStorage;
         }
+
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var token = await _localStorage.GetItemAsync<string>("accessToken");
-            var identity = new ClaimsIdentity();
+            var savedToken = await _localStorage.GetItemAsync<string>("authToken");
 
-            if (!string.IsNullOrEmpty(token))
-            {
-                var handler = new JwtSecurityTokenHandler();
-                var jwt = handler.ReadJwtToken(token);
+            if (string.IsNullOrWhiteSpace(savedToken))
+                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
 
-                var claims = jwt.Claims;
-                identity = new ClaimsIdentity(claims, "jwt");
-            }
-
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(savedToken);
+            var identity = new ClaimsIdentity(jwtToken.Claims, "jwt");
             var user = new ClaimsPrincipal(identity);
+
             return new AuthenticationState(user);
         }
 
-        public void NotifyAuthenticationStateChanged() =>
-            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+        public void NotifyUserAuthentication(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var identity = new ClaimsIdentity(jwtToken.Claims, "jwt");
+            var user = new ClaimsPrincipal(identity);
+            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
+        }
+
+        public void NotifyUserLogout()
+        {
+            var anonymous = new ClaimsPrincipal(new ClaimsIdentity());
+            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(anonymous)));
+        }
+
+        public async Task<Guid?> GetUserId()
+        {
+            var state = await GetAuthenticationStateAsync();
+            var userIdClaim = state.User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null) return null;
+            return Guid.Parse(userIdClaim.Value);
+        }
     }
 }

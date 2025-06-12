@@ -35,7 +35,7 @@ namespace JwtAuth.Services
             {
                 return null;
             }
-            var user = new User();
+            var user = new User() { Role = request.Role };
             var hashedPassword = new PasswordHasher<User>()
                                     .HashPassword(user, request.Password);
             user.Username = request.Username;

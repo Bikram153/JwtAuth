@@ -1,25 +1,32 @@
 ﻿@page "/login"
-@using BlazorWasmClient.Services
 @using BlazorWasmClient.Models
-<h3>Login</h3>
-@inject AuthService AuthService
+@using BlazorWasmClient.Services
+@inject HttpClient Http
 @inject NavigationManager Nav
+@inject TokenService TokenService
+
 <h3>Login</h3>
-<EditForm Model="_user" OnValidSubmit="HandleLogin">
-    <InputText @bind-Value="_user.Username" placeholder="Username" />
-    <InputText @bind-Value="_user.Password" type="password" placeholder="Password" />
-    <button type="submit">Login</button>
+<EditForm Model="loginUser" OnValidSubmit="HandleLogin">
+    <InputText @bind-Value="loginUser.Username" class="form-control" placeholder="Username" />
+    <InputText @bind-Value="loginUser.Password" class="form-control" type="password" placeholder="Password" />
+    <button class="btn btn-primary mt-2" type="submit">Login</button>
 </EditForm>
 
 @code {
-    private UserDto _user = new();
+    private UserDto loginUser = new();
 
     private async Task HandleLogin()
     {
-        var success = await AuthService.Login(_user);
-        if(success)
+        var result = await Http.PostAsJsonAsync("https://localhost:7250/api/Authe/login", loginUser);
+        if (result.IsSuccessStatusCode)
         {
-            Nav.NavigateTo("/dashboard");
+            var tokens = await result.Content.ReadFromJsonAsync<TokenResponseDto>();
+            await TokenService.SetTokensAsync(tokens);
+            Nav.NavigateTo("dashboard");
+        }
+        else
+        {
+            Console.WriteLine("Login failed");
         }
     }
 }

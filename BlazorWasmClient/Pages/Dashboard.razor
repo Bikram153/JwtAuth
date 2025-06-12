@@ -1,2 +1,37 @@
 @page "/dashboard"
+@using BlazorWasmClient.Services
+@inject TokenService TokenService
+@inject HttpClient Http
+
 <h3>Dashboard</h3>
+<p>Welcome, @TokenService.GetClaim("name")!</p>
+<p>Role: @TokenService.UserRole</p>
+
+@if (!string.IsNullOrEmpty(TokenService.AccessToken))
+{
+    <button class="btn btn-info" @onclick="CallProtectedApi">Call Authenticated API</button>
+    <p>@message</p>
+}
+
+@code {
+    private string message = "";
+
+    private async Task CallProtectedApi()
+    {
+        var response = await Http.GetAsync("https://localhost:7250/api/Authe");
+        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            await TokenService.TryRefreshTokenAsync();
+            response = await Http.GetAsync("https://localhost:7250/api/Authe");
+        }
+
+        if (response.IsSuccessStatusCode)
+        {
+            message = await response.Content.ReadAsStringAsync();
+        }
+        else
+        {
+            message = "Access denied.";
+        }
+    }
+}

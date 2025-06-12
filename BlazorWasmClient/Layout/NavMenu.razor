@@ -1,39 +1,37 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">BlazorWasmClient</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
-</div>
+﻿@using BlazorWasmClient.Services
+@inject TokenService TokenService
+@inject NavigationManager Navigation
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-    </nav>
-</div>
-
-@code {
-    private bool collapseNavMenu = true;
-
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
+<ul class="nav nav-pills">
+    <li class="nav-item">
+        <a class="nav-link" href="">Home</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="register">Register</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="login">Login</a>
+    </li>
+    @if (TokenService.IsLoggedIn)
     {
-        collapseNavMenu = !collapseNavMenu;
+        <li class="nav-item">
+            <a class="nav-link" href="dashboard">Dashboard</a>
+        </li>
+        @if (TokenService.UserRole == "Admin")
+        {
+            <li class="nav-item">
+                <a class="nav-link" href="admin">Admin Panel</a>
+            </li>
+        }
+        <li class="nav-item">
+            <a class="nav-link" href="" @onclick="Logout">Logout</a>
+        </li>
+    }
+</ul>
+@code {
+    private void Logout()
+    {
+        TokenService.Logout();
+        Navigation.NavigateTo("login");
     }
 }

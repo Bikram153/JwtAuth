@@ -1,2 +1,15 @@
 @page "/admin"
-<h3>Admin Page</h3>
+@using BlazorWasmClient.Services
+@inject TokenService TokenService
+@inject NavigationManager Nav
+
+@if (TokenService.UserRole != "Admin")
+{
+    <p>You are not authorized to view this page.</p>
+    Nav.NavigateTo("/");
+}
+else
+{
+    <h3>Admin Panel</h3>
+    <p>Only admins can see this page.</p>
+}
